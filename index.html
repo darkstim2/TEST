@@ -3,137 +3,363 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NeoLab [BLUE] v2</title>
-  <meta name="theme-color" content="#04122a"/>
+  <title>NeoLab [BLUE] v3</title>
+  <meta name="theme-color" content="#03132b"/>
+
+  <!-- Pixel/retro fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+    rel="stylesheet">
+
   <style>
+    /* ======= Neo-Cyberpunk BLUE v3 : насыщенный ретро-сетап ======= */
     :root{
-      --bg-0:#020714; --bg-1:#071634; --panel:rgba(9,22,52,.58);
-      --txt:#eaf3ff; --txt-weak:#b9d1ff;
-      --primary:#3aa8ff; --accent:#9de5ff; --good:#2df7c0; --danger:#ff3b6b;
-      --border:#1e5bcb; --glow:0 0 14px rgba(58,168,255,.55), inset 0 0 32px rgba(58,168,255,.12);
-      --radius:16px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      --sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --bg0:#020714; --bg1:#061634;
+      --grid:#0f2f73; --scan:#ffffff08;
+      --panel:rgba(11,24,56,.62); --panel-2:rgba(16,36,84,.78);
+      --txt:#eaf3ff; --muted:#b9d1ff;
+      --blue:#39a9ff; --aqua:#9de5ff; --vio:#7aa9ff;
+      --good:#2df7c0; --danger:#ff3b6b; --warn:#ffd166;
+      --br:#1e5bcb;
+      --glow:0 0 14px rgba(57,169,255,.55), inset 0 0 28px rgba(57,169,255,.10);
+      --r:16px;
+      --mono:'VT323', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --pix:'Press Start 2P', 'VT323', monospace;
+      --ui: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{ margin:0; color:var(--txt); font:15px/1.45 var(--sans);
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--txt); font: 14px/1.45 var(--ui);
       background:
-        radial-gradient(1200px 700px at 70% -10%, #0a2a55 0%, transparent 60%),
-        radial-gradient(800px 500px at -10% 90%, #001a40 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg-0), var(--bg-1));
-      background-attachment: fixed; overflow:hidden;
+        radial-gradient(1200px 720px at 70% -10%, #0b2e63 0%, transparent 60%),
+        radial-gradient(900px 580px at -10% 90%, #05254f 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      background-attachment: fixed;
+      overflow:hidden;
+      text-rendering: optimizeLegibility;
     }
-    .bg-grid::before{ content:""; position:fixed; inset:0; z-index:-1;
+
+    /* animated grid + scanlines + vignette */
+    .scene::before{
+      content:""; position:fixed; inset:0; z-index:-3; opacity:.38;
       background:
         linear-gradient(transparent 31px, rgba(30,91,203,.35) 32px),
         linear-gradient(90deg, transparent 31px, rgba(30,91,203,.35) 32px);
-      background-size:32px 32px; animation:gridmove 20s linear infinite; opacity:.35;
-      mask-image: radial-gradient(1200px 720px at 60% 30%, rgba(255,255,255,.7), rgba(255,255,255,.05) 70%, transparent 80%);
+      background-size:32px 32px; animation:gridmove 18s linear infinite;
+      mask-image: radial-gradient(1200px 720px at 56% 34%, #fff 0, rgba(255,255,255,.5) 60%, transparent 80%);
     }
     @keyframes gridmove{ from{transform:translateY(0)} to{transform:translateY(32px)} }
-    .fx::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:2;
-      background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,.35) 90%),
-                 repeating-linear-gradient(to bottom, rgba(255,255,255,.03), rgba(255,255,255,.03) 2px, transparent 2px, transparent 4px);
+    .scene::after{
+      content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+      background:
+        radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,.35) 92%),
+        repeating-linear-gradient(to bottom, var(--scan) 0 2px, transparent 2px 4px);
       mix-blend-mode:overlay;
     }
+
     .app{ position:relative; height:100dvh; display:grid; grid-template-rows:auto 1fr auto; }
-    header{ height:60px; padding:10px 16px; display:flex; align-items:center; gap:12px;
-      background:linear-gradient(180deg, rgba(9,22,52,.95), rgba(6,16,36,.85));
-      border-bottom:1px solid var(--border); box-shadow:var(--glow); position:sticky; top:0; z-index:5;
+
+    header{
+      height:60px; padding:10px 14px;
+      display:flex; align-items:center; gap:12px;
+      background:linear-gradient(180deg, rgba(10,24,54,.95), rgba(6,16,36,.88));
+      border-bottom:1px solid var(--br); box-shadow: var(--glow);
+      position:sticky; top:0; z-index:5;
     }
-    .dot{ width:10px; height:10px; border-radius:50%; background:var(--good); box-shadow:0 0 14px var(--good) }
-    header h1{ margin:0; font-size:16px; letter-spacing:.4px } .sub{ color:var(--txt-weak); font:600 12px var(--mono) }
+    .dot{ width:10px; height:10px; border-radius:2px; background:var(--good);
+          box-shadow:0 0 12px var(--good), 0 0 2px #000 inset; image-rendering: pixelated; }
+    .brand{
+      display:flex; flex-direction:column;
+    }
+    .brand .pix{
+      font-family: var(--pix); font-size:12px; letter-spacing:1px; text-transform:uppercase;
+      text-shadow:0 0 8px rgba(157,229,255,.25);
+    }
+    .brand .sub{ color:var(--muted); font: 600 12px var(--mono); }
+
     main{ position:relative; overflow:auto; padding:14px; scroll-behavior:smooth; }
-    .panel{ position:relative; background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:14px;
-      box-shadow:var(--glow); backdrop-filter: blur(12px) saturate(140%); margin-bottom:12px; }
-    .panel:after,.panel:before{ content:""; position:absolute; width:18px; height:18px; border:2px solid var(--accent);
-      filter:drop-shadow(0 0 8px rgba(157,229,255,.5)); }
-    .panel:before{ left:-2px; top:-2px; border-right:none; border-bottom:none; }
-    .panel:after{ right:-2px; bottom:-2px; border-left:none; border-top:none; }
-    h2{ margin:0 0 8px 0; font-size:16px; letter-spacing:.3px } .muted{ color:var(--txt-weak) }
+
+    /* panels with ASCII chrome */
+    .panel{
+      position:relative; background:var(--panel);
+      border:1px solid var(--br); border-radius:var(--r);
+      padding:14px; margin-bottom:12px; box-shadow: var(--glow);
+      backdrop-filter: blur(12px) saturate(140%);
+    }
+    .panel .ascii{
+      font-family: var(--mono); color:var(--aqua); font-size:16px; line-height:1.1;
+      letter-spacing:.3px; margin:0 0 8px 0; white-space:pre; user-select:none;
+      text-shadow:0 0 8px rgba(157,229,255,.22);
+    }
+    .panel h2{
+      margin:6px 0 8px; font-size:16px; letter-spacing:.2px;
+      font-family: var(--pix);
+    }
+    .muted{ color:var(--muted) }
+
+    /* KPIs */
     .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
-    .kpi{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:12px;
-      border:1px dashed var(--border); background:rgba(12,30,72,.55); font:700 13px var(--mono); box-shadow: inset 0 0 18px rgba(58,168,255,.12); }
+    .kpi{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; border-radius:12px; border:1px dashed var(--br);
+      background: linear-gradient(180deg, rgba(18,42,96,.58), rgba(10,28,74,.50));
+      font: 700 13px var(--mono);
+      box-shadow: inset 0 0 18px rgba(58,168,255,.12);
+    }
     .kpi strong{ font:800 16px var(--mono) }
-    /* buttons: force white */
-    .btn, .nav-btn{ color:#fff !important; text-shadow:0 0 6px rgba(255,255,255,.22) }
-    .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:13px 14px;
-      border-radius:14px; border:1px solid var(--border);
-      background:linear-gradient(180deg, rgba(58,168,255,.25), rgba(58,168,255,.12));
-      box-shadow:var(--glow); font-weight:800; letter-spacing:.25px; position:relative; overflow:hidden;
-      transition: transform .05s ease, filter .2s ease; }
-    .btn:after{ content:""; position:absolute; inset:-150% -20%; transform:skewX(-20deg);
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
-      animation:sheen 4s linear infinite; pointer-events:none; }
-    .btn:active{ transform:scale(.98) } @keyframes sheen{ from{ transform:translateX(-60%) skewX(-20deg)} to{ transform:translateX(60%) skewX(-20deg)}}
-    .btn--ghost{ background:linear-gradient(180deg, rgba(12,28,70,.55), rgba(8,20,54,.5)) }
+
+    /* Buttons — white text fixed + pixel headings */
+    .btn, .nav-btn{
+      color:#fff !important; text-shadow:0 0 6px rgba(255,255,255,.22);
+      font-family: var(--pix); font-size:10px; letter-spacing:.5px; text-transform:uppercase;
+    }
+    .btn{
+      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      padding:12px 12px; border-radius:14px; border:1px solid var(--br);
+      background:
+        radial-gradient(120px 40px at 50% 0%, rgba(57,169,255,.35), transparent 60%),
+        linear-gradient(180deg, rgba(20,52,120,.62), rgba(12,32,82,.55));
+      box-shadow: var(--glow); position:relative; overflow:hidden;
+      transition: transform .06s ease, filter .2s ease;
+    }
+    .btn:after{
+      content:""; position:absolute; inset:-150% -20%; transform:skewX(-20deg);
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+      animation:sheen 4s linear infinite; pointer-events:none;
+    }
+    .btn:active{ transform: scale(.98) }
+    .btn--ghost{ background:linear-gradient(180deg, rgba(14,36,96,.55), rgba(8,20,56,.5)) }
     .btn--good{ background:linear-gradient(180deg, rgba(45,247,192,.35), rgba(45,247,192,.15)); border-color:#1b7d63 }
-    .item{ display:flex; gap:10px; align-items:center; padding:10px; border:1px solid var(--border); border-radius:12px; background:rgba(14,32,78,.55);
-      box-shadow: inset 0 0 18px rgba(58,168,255,.08); }
-    .item .meta{ font:700 12px var(--mono); color:var(--txt-weak) } .price{ font:800 13px var(--mono); color:#c4e2ff }
-    .field{ display:grid; gap:6px } .field label{ font:800 12px var(--mono); color:var(--txt-weak) }
-    input[type=number],input[type=text],select{ width:100%; border-radius:12px; border:1px solid var(--border); padding:12px 12px;
-      background:rgba(10,28,74,.6); color:#fff; font-weight:700; box-shadow:var(--glow); }
-    .note{ font:700 12px var(--mono); color:var(--txt-weak) }
-    nav{ padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
-      background:linear-gradient(180deg, rgba(6,16,36,.5), rgba(6,16,36,.92)); border-top:1px solid var(--border); box-shadow:var(--glow); }
-    .nav-btn{ border-radius:14px; border:1px solid var(--border);
-      background: radial-gradient(120px 40px at 50% 0%, rgba(58,168,255,.35), transparent 60%),
-                  linear-gradient(180deg, rgba(18,46,110,.7), rgba(10,28,74,.7));
-      padding:12px; font-weight:800; letter-spacing:.25px; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; }
-    .nav-btn.active{ outline:2px solid var(--primary); box-shadow:0 0 0 4px rgba(58,168,255,.14) }
-    .progress{ height:10px; border-radius:8px; background:rgba(255,255,255,.08); overflow:hidden; border:1px solid var(--border) }
-    .progress>b{ display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), var(--accent)); box-shadow:0 0 20px rgba(58,168,255,.6) inset }
-    nav{ padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+
+    @keyframes sheen{ from{ transform:translateX(-60%) skewX(-20deg) } to{ transform:translateX(60%) skewX(-20deg) } }
+
+    /* items / forms */
+    .item{ display:flex; gap:10px; align-items:center; padding:10px; border:1px solid var(--br);
+           border-radius:12px; background:rgba(14,32,78,.55); box-shadow: inset 0 0 18px rgba(58,168,255,.08); }
+    .item .meta{ font:700 12px var(--mono); color:var(--muted) }
+    .price{ font:800 13px var(--mono); color:#cfe7ff }
+    .field{ display:grid; gap:6px }
+    .field label{ font:800 12px var(--mono); color:var(--muted) }
+    input[type=number], input[type=text], select{
+      width:100%; border-radius:12px; border:1px solid var(--br); padding:12px 12px;
+      background:rgba(10,28,74,.6); color:#fff; font-weight:700; box-shadow: var(--glow);
+      font-family: var(--mono);
+    }
+    .note{ font:700 12px var(--mono); color:var(--muted) }
+
+    .progress{ height:10px; border-radius:8px; background:rgba(255,255,255,.08); overflow:hidden; border:1px solid var(--br) }
+    .progress > b{ display:block; height:100%; width:0%;
+                   background:linear-gradient(90deg, var(--blue), var(--aqua));
+                   box-shadow:0 0 20px rgba(58,168,255,.6) inset }
+
+    /* Bottom nav (pixel) */
+    nav{
+      padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      background:linear-gradient(180deg, rgba(6,16,36,.52), rgba(6,16,36,.94));
+      border-top:1px solid var(--br); box-shadow: var(--glow);
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+    .nav-btn{
+      border-radius:14px; border:1px solid var(--br);
+      background:
+        radial-gradient(120px 40px at 50% 0%, rgba(57,169,255,.32), transparent 60%),
+        linear-gradient(180deg, rgba(18,46,110,.7), rgba(10,28,74,.7));
+      padding:12px; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center;
+    }
+    .nav-btn.active{ outline:2px solid var(--blue); box-shadow:0 0 0 4px rgba(58,168,255,.14) }
+
     header{ padding-top: calc(10px + env(safe-area-inset-top)); height: calc(60px + env(safe-area-inset-top)); }
   </style>
 </head>
-<body class="bg-grid fx">
-  <canvas id="particles" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;"></canvas>
+<body class="scene">
+  <!-- particle net -->
+  <canvas id="particles" style="position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.58;"></canvas>
+
   <div class="app" id="app">
-    <header><div class="dot"></div><div><h1>NeoLab <span style="color:#9de5ff">[BLUE]</span> v2</h1>
-      <div class="sub">кибернетический комплекс · насыщенный режим</div></div></header>
+    <header>
+      <div class="dot" aria-hidden="true"></div>
+      <div class="brand">
+        <div class="pix">NEOLAB [BLUE] v3</div>
+        <div class="sub">кибер-комплекс · OVERCLOCK</div>
+      </div>
+    </header>
+
     <main id="view" tabindex="-1" aria-live="polite"></main>
+
     <nav id="nav">
-      <button class="nav-btn" data-view="processor">⚙️ Процессор</button>
-      <button class="nav-btn" data-view="mods">🧬 Модификации</button>
-      <button class="nav-btn" data-view="lab">☢️ Лаборатория</button>
-      <button class="nav-btn" data-view="shop">➕ Имплант-Бутик</button>
-      <button class="nav-btn" data-view="format">♻️ Форматирование</button>
-      <button class="nav-btn" data-view="god">✨ Обратиться к Богу</button>
+      <button class="nav-btn" data-view="processor">⚙️ ПРОЦЕССОР</button>
+      <button class="nav-btn" data-view="mods">🧬 МОДИФИКАЦИИ</button>
+      <button class="nav-btn" data-view="lab">☢️ ЛАБОРАТОРИЯ</button>
+      <button class="nav-btn" data-view="shop">➕ ИМПЛАНТ-БУТИК</button>
+      <button class="nav-btn" data-view="format">♻️ ФОРМАТИРОВАНИЕ</button>
+      <button class="nav-btn" data-view="god">✨ БОГ</button>
     </nav>
   </div>
-  <div class="toast" id="toast"></div>
+
   <script>
-  /* particles background */
-  const c=document.getElementById('particles'),x=c.getContext('2d');let W,H,P=[];
-  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;P=Array.from({length:36},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}));}
-  function tick(){x.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
-    x.fillStyle='rgba(157,229,255,.7)';for(const p of P){x.beginPath();x.arc(p.x,p.y,1.2,0,Math.PI*2);x.fill();}
-    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
-      if(d<110){x.strokeStyle=`rgba(58,168,255,${.15*(1-d/110)})`;x.lineWidth=.6;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}requestAnimationFrame(tick);}
-  resize();addEventListener('resize',resize);tick();
-  /* simple app state */
-  const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
-  const blank={cryo:0,components:0,blueprints:0,modsBuilt:0,level:1,inventory:[],modules:{calibrated:false,frequency:0,installed:[]},log:[]};
-  let S=load();function save(){localStorage.setItem('neolab-blue',JSON.stringify(S));}
-  function load(){try{return Object.assign({},blank,JSON.parse(localStorage.getItem('neolab-blue')||'{}'));}catch(e){return structuredClone(blank);}}
-  function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
-  const routes={processor,lab,mods,shop,format,god,welcome};const view=$('#view');
-  function go(n){const fn=routes[n]||routes.welcome;view.innerHTML=fn();attach(n);$$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===n));save();view.scrollTop=0;}
-  function welcome(){return `<section class="panel"><h2>☸ Добро пожаловать</h2><p class="muted">Используйте нижние кнопки.</p>
-  <div class="grid-2"><button class="btn" data-go="processor">🔎 Процессор</button><button class="btn btn--ghost" data-go="lab">🧪 Лаборатория</button></div></section>`;}
-  function processor(){return `<section class="panel"><h2>⚙️ Процессор</h2><div class="grid-2"><div class="kpi">Крио-Геном <strong>${S.cryo}</strong></div>
-  <div class="kpi">Компоненты <strong>${S.components}</strong></div><div class="kpi">Чертежи <strong>${S.blueprints}</strong></div>
-  <div class="kpi">Модификаций <strong>${S.modsBuilt}</strong></div><div class="kpi">Уровень <strong>${S.level}</strong></div>
-  <div class="kpi">Инвентарь <strong>${S.inventory.length}</strong></div></div></section>`;}
-  function lab(){return `<section class="panel"><h2>☢️ Лаборатория</h2><div class="field"><label>Извлечение</label><div class="progress"><b id="pbar"></b></div></div>
-  <button class="btn" id="extract">🚀 Запустить процесс</button></section>`;}
-  function mods(){return `<section class="panel"><h2>🧬 Модификации</h2><button class="btn" id="calibrate">⚙️ Калибровка</button></section>`;}
-  function shop(){return `<section class="panel"><h2>➕ Имплант-Бутик</h2><p class="muted">Баланс: ${S.cryo} Ⓚ</p></section>`;}
-  function format(){return `<section class="panel"><h2>♻️ Форматирование</h2><p class="muted">Раздел в разработке</p></section>`;}
-  function god(){return `<section class="panel"><h2>✨ Обратиться к Богу</h2><div class="note">/start, /help</div></section>`;}
-  function attach(n){if(n==='lab'){ $('#extract').onclick=()=>{const p=$('#pbar');p.style.width='0%';let w=0;const t=setInterval(()=>{w+=20;p.style.width=Math.min(w,100)+'%';if(w>=100){clearInterval(t);S.cryo++;toast('+1 Ⓚ');go('lab');}},200);};}}
-  go('welcome');$$('.nav-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
-  </script>
-</body>
-</html>
+    /* ===== particles for cyber vibe ===== */
+    const C = document.getElementById('particles'); const CTX = C.getContext('2d');
+    let W,H, P=[];
+    function resize(){ W = C.width = innerWidth; H = C.height = innerHeight;
+      const n = Math.max(40, Math.floor(W*H/16000));
+      P = Array.from({length:n}, ()=>({ x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.32, vy:(Math.random()-.5)*.32 }));
+    }
+    function loop(){
+      CTX.clearRect(0,0,W,H);
+      P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1; });
+      CTX.fillStyle='rgba(157,229,255,.8)';
+      for(const p of P){ CTX.beginPath(); CTX.arc(p.x,p.y,1.1,0,Math.PI*2); CTX.fill(); }
+      for(let i=0;i<P.length;i++){
+        for(let j=i+1;j<P.length;j++){
+          const a=P[i], b=P[j], d=Math.hypot(a.x-b.x, a.y-b.y);
+          if(d<120){
+            CTX.strokeStyle = `rgba(58,168,255,${(1-d/120)*.16})`;
+            CTX.lineWidth=.6; CTX.beginPath(); CTX.moveTo(a.x,a.y); CTX.lineTo(b.x,b.y); CTX.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+    resize(); addEventListener('resize', resize); loop();
+
+    /* ===== app state & router ===== */
+    const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>Array.from(e.querySelectorAll(s));
+    const blank={ cryo:0, components:0, blueprints:0, modsBuilt:0, level:1, inventory:[], modules:{calibrated:false,frequency:0,installed:[]}, log:[] };
+    let S = load();
+    function save(){ localStorage.setItem('neolab-blue', JSON.stringify(S)); }
+    function load(){ try{ return Object.assign({}, blank, JSON.parse(localStorage.getItem('neolab-blue')||'{}')); }catch(e){ return structuredClone(blank); } }
+
+    const routes = { processor, lab, mods, shop, format, god, welcome };
+    const view = $('#view');
+
+    function go(name){
+      const fn = routes[name] || routes['welcome'];
+      view.innerHTML = fn();
+      attach(name);
+      $$('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+      save(); view.scrollTop=0;
+    }
+
+    /* ===== views (with ASCII headers) ===== */
+    function asciiBox(title){
+      const t = title.toUpperCase();
+      const bar = '-'.repeat(Math.min(28, t.length+2));
+      return `+${bar}+\n| ${t} |\n+${bar}+`;
+    }
+
+    function welcome(){
+      return `
+        <section class="panel">
+          <pre class="ascii">${asciiBox('WELCOME / START')}</pre>
+          <h2>Добро пожаловать в NeoLab</h2>
+          <p class="muted">Насыщенный нео-киберпанк интерфейс с пиксельной типографикой. Используйте нижние кнопки.</p>
+          <div class="grid-2" style="margin-top:12px">
+            <button class="btn" data-go="processor">🔎 ОТКРЫТЬ ПРОЦЕССОР</button>
+            <button class="btn btn--ghost" data-go="lab">🧪 В ЛАБОРАТОРИЮ</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function processor(){
+      return `
+        <section class="panel">
+          <pre class="ascii">${asciiBox('CORE PROCESSOR')}</pre>
+          <h2>Процессор</h2>
+          <div class="grid-2" style="margin-top:10px">
+            <div class="kpi">Крио-Геном <strong>${S.cryo}</strong></div>
+            <div class="kpi">Компоненты <strong>${S.components}</strong></div>
+            <div class="kpi">Чертежи <strong>${S.blueprints}</strong></div>
+            <div class="kpi">Модификаций <strong>${S.modsBuilt}</strong></div>
+            <div class="kpi">Уровень <strong>${S.level}</strong></div>
+            <div class="kpi">Инвентарь <strong>${S.inventory.length}</strong></div>
+          </div>
+          <div class="grid-2" style="margin-top:14px">
+            <button class="btn" data-go="lab">🧪 ИЗВЛЕЧЬ КРИО-ГЕНОМ</button>
+            <button class="btn" data-go="mods">🧬 КАЛИБРОВАТЬ МОДУЛЬ</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <pre class="ascii">${asciiBox('LAST LOG')}</pre>
+          <div class="note">${(S.log.slice(-6).reverse().map(x=>'• '+x).join('<br>')) || 'Лента событий пуста.'}</div>
+        </section>
+      `;
+    }
+
+    function lab(){
+      return `
+        <section class="panel">
+          <pre class="ascii">${asciiBox('LAB / EXTRACT')}</pre>
+          <h2>Лаборатория</h2>
+          <p class="muted">Извлечение <b>Крио-Генома</b>, синтез компонентов и создание чертежей.</p>
+
+          <div class="field" style="margin-top:10px">
+            <label>Извлечение Крио-Генома</label>
+            <div class="progress"><b id="pbar"></b></div>
+          </div>
+
+          <div class="grid-2" style="margin-top:12px">
+            <button class="btn btn--good" id="extract">🚀 ЗАПУСК</button>
+            <button class="btn" id="extractComponents">⚒️ СИНТЕЗ КОМПОНЕНТОВ</button>
+          </div>
+
+          <div class="grid-2" style="margin-top:12px">
+            <button class="btn" id="makeBlueprint">📐 СОЗДАТЬ ЧЕРТЁЖ</button>
+            <button class="btn btn--ghost" data-go="tree">🌫️ ДРЕВО ИССЛЕДОВАНИЙ</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function mods(){
+      return `
+        <section class="panel">
+          <pre class="ascii">${asciiBox('MODULE CALIB')}</pre>
+          <h2>Модификации</h2>
+          <div class="grid-2" style="margin-top:10px">
+            <button class="btn" id="calibrate">⚙️ КАЛИБРОВКА</button>
+            <button class="btn" id="freq">📶 НАСТРОЙКА ЧАСТОТЫ</button>
+          </div>
+          <div style="margin-top:12px">
+            <div class="kpi">Частота <strong>${S.modules.frequency||0} Гц</strong></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn" id="install">🧩 УСТАНОВИТЬ МОДУЛЬ</button>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn" id="buildMod">🛠️ ПОЛУЧИТЬ МОДИФИКАТОР</button>
+            <div class="note" style="margin-top:6px">Требуется: 1 чертёж + 3 компонента</div>
+          </div>
+        </section>
+      `;
+    }
+
+    function shop(){
+      const items = [
+        {id:'neuro-01', name:'НЕЙРО-МОД 01', desc:'Базовая стабилизация отклика', price:5},
+        {id:'stabilizer', name:'СТАБИЛИЗАТОР ПОЛЯ', desc:'Снижает шум на 12%', price:2},
+        {id:'sensor', name:'СЕНСОР СПЕКТРОВ', desc:'Открывает скрытые слои', price:4},
+        {id:'booster', name:'ПЛАЗМА-БУСТЕР', desc:'+1 к частоте модуля', price:3},
+      ];
+      window.__shop = items;
+
+      return `
+        <section class="panel">
+          <pre class="ascii">${asciiBox('IMPLANT BOUTIQUE')}</pre>
+          <h2>Имплант-Бутик</h2>
+          <p class="muted">Баланс: <b>${S.cryo}</b> Ⓚ</p>
+
+          <div style="margin-top:10px">
+            ${items.map(it => `
+              <div class="item" style="margin-top:8px">
+                <div style="width:40px;height:40px;border-radius:10px;border:1px solid var(--br);box-shadow:var(--glow);background:linear-gradient(135deg, rgba(58,168,255,.35), rgba(58,168,255,.08));"></div>
+                <div style="flex:1">
+                  <div style="font-family:var(--pix);font-size:10px;letter-spacing:.5px">${it.name} · <span class="price">${it.price} Ⓚ</span></div>
+                  <div class="meta">${it.desc}</div>
+                </div>
+                <button class="btn" data-buy="${it.id}" style="width:auto;padding:10px 12px">КУПИТЬ</button>
+              </div>
