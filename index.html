@@ -1,365 +1,192 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NeoLab [BLUE] v3</title>
-  <meta name="theme-color" content="#03132b"/>
-
-  <!-- Pixel/retro fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
-    rel="stylesheet">
-
-  <style>
-    /* ======= Neo-Cyberpunk BLUE v3 : насыщенный ретро-сетап ======= */
-    :root{
-      --bg0:#020714; --bg1:#061634;
-      --grid:#0f2f73; --scan:#ffffff08;
-      --panel:rgba(11,24,56,.62); --panel-2:rgba(16,36,84,.78);
-      --txt:#eaf3ff; --muted:#b9d1ff;
-      --blue:#39a9ff; --aqua:#9de5ff; --vio:#7aa9ff;
-      --good:#2df7c0; --danger:#ff3b6b; --warn:#ffd166;
-      --br:#1e5bcb;
-      --glow:0 0 14px rgba(57,169,255,.55), inset 0 0 28px rgba(57,169,255,.10);
-      --r:16px;
-      --mono:'VT323', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      --pix:'Press Start 2P', 'VT323', monospace;
-      --ui: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--txt); font: 14px/1.45 var(--ui);
-      background:
-        radial-gradient(1200px 720px at 70% -10%, #0b2e63 0%, transparent 60%),
-        radial-gradient(900px 580px at -10% 90%, #05254f 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      background-attachment: fixed;
-      overflow:hidden;
-      text-rendering: optimizeLegibility;
-    }
-
-    /* animated grid + scanlines + vignette */
-    .scene::before{
-      content:""; position:fixed; inset:0; z-index:-3; opacity:.38;
-      background:
-        linear-gradient(transparent 31px, rgba(30,91,203,.35) 32px),
-        linear-gradient(90deg, transparent 31px, rgba(30,91,203,.35) 32px);
-      background-size:32px 32px; animation:gridmove 18s linear infinite;
-      mask-image: radial-gradient(1200px 720px at 56% 34%, #fff 0, rgba(255,255,255,.5) 60%, transparent 80%);
-    }
-    @keyframes gridmove{ from{transform:translateY(0)} to{transform:translateY(32px)} }
-    .scene::after{
-      content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
-      background:
-        radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,.35) 92%),
-        repeating-linear-gradient(to bottom, var(--scan) 0 2px, transparent 2px 4px);
-      mix-blend-mode:overlay;
-    }
-
-    .app{ position:relative; height:100dvh; display:grid; grid-template-rows:auto 1fr auto; }
-
-    header{
-      height:60px; padding:10px 14px;
-      display:flex; align-items:center; gap:12px;
-      background:linear-gradient(180deg, rgba(10,24,54,.95), rgba(6,16,36,.88));
-      border-bottom:1px solid var(--br); box-shadow: var(--glow);
-      position:sticky; top:0; z-index:5;
-    }
-    .dot{ width:10px; height:10px; border-radius:2px; background:var(--good);
-          box-shadow:0 0 12px var(--good), 0 0 2px #000 inset; image-rendering: pixelated; }
-    .brand{
-      display:flex; flex-direction:column;
-    }
-    .brand .pix{
-      font-family: var(--pix); font-size:12px; letter-spacing:1px; text-transform:uppercase;
-      text-shadow:0 0 8px rgba(157,229,255,.25);
-    }
-    .brand .sub{ color:var(--muted); font: 600 12px var(--mono); }
-
-    main{ position:relative; overflow:auto; padding:14px; scroll-behavior:smooth; }
-
-    /* panels with ASCII chrome */
-    .panel{
-      position:relative; background:var(--panel);
-      border:1px solid var(--br); border-radius:var(--r);
-      padding:14px; margin-bottom:12px; box-shadow: var(--glow);
-      backdrop-filter: blur(12px) saturate(140%);
-    }
-    .panel .ascii{
-      font-family: var(--mono); color:var(--aqua); font-size:16px; line-height:1.1;
-      letter-spacing:.3px; margin:0 0 8px 0; white-space:pre; user-select:none;
-      text-shadow:0 0 8px rgba(157,229,255,.22);
-    }
-    .panel h2{
-      margin:6px 0 8px; font-size:16px; letter-spacing:.2px;
-      font-family: var(--pix);
-    }
-    .muted{ color:var(--muted) }
-
-    /* KPIs */
-    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
-    .kpi{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 12px; border-radius:12px; border:1px dashed var(--br);
-      background: linear-gradient(180deg, rgba(18,42,96,.58), rgba(10,28,74,.50));
-      font: 700 13px var(--mono);
-      box-shadow: inset 0 0 18px rgba(58,168,255,.12);
-    }
-    .kpi strong{ font:800 16px var(--mono) }
-
-    /* Buttons — white text fixed + pixel headings */
-    .btn, .nav-btn{
-      color:#fff !important; text-shadow:0 0 6px rgba(255,255,255,.22);
-      font-family: var(--pix); font-size:10px; letter-spacing:.5px; text-transform:uppercase;
-    }
-    .btn{
-      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
-      padding:12px 12px; border-radius:14px; border:1px solid var(--br);
-      background:
-        radial-gradient(120px 40px at 50% 0%, rgba(57,169,255,.35), transparent 60%),
-        linear-gradient(180deg, rgba(20,52,120,.62), rgba(12,32,82,.55));
-      box-shadow: var(--glow); position:relative; overflow:hidden;
-      transition: transform .06s ease, filter .2s ease;
-    }
-    .btn:after{
-      content:""; position:absolute; inset:-150% -20%; transform:skewX(-20deg);
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
-      animation:sheen 4s linear infinite; pointer-events:none;
-    }
-    .btn:active{ transform: scale(.98) }
-    .btn--ghost{ background:linear-gradient(180deg, rgba(14,36,96,.55), rgba(8,20,56,.5)) }
-    .btn--good{ background:linear-gradient(180deg, rgba(45,247,192,.35), rgba(45,247,192,.15)); border-color:#1b7d63 }
-
-    @keyframes sheen{ from{ transform:translateX(-60%) skewX(-20deg) } to{ transform:translateX(60%) skewX(-20deg) } }
-
-    /* items / forms */
-    .item{ display:flex; gap:10px; align-items:center; padding:10px; border:1px solid var(--br);
-           border-radius:12px; background:rgba(14,32,78,.55); box-shadow: inset 0 0 18px rgba(58,168,255,.08); }
-    .item .meta{ font:700 12px var(--mono); color:var(--muted) }
-    .price{ font:800 13px var(--mono); color:#cfe7ff }
-    .field{ display:grid; gap:6px }
-    .field label{ font:800 12px var(--mono); color:var(--muted) }
-    input[type=number], input[type=text], select{
-      width:100%; border-radius:12px; border:1px solid var(--br); padding:12px 12px;
-      background:rgba(10,28,74,.6); color:#fff; font-weight:700; box-shadow: var(--glow);
-      font-family: var(--mono);
-    }
-    .note{ font:700 12px var(--mono); color:var(--muted) }
-
-    .progress{ height:10px; border-radius:8px; background:rgba(255,255,255,.08); overflow:hidden; border:1px solid var(--br) }
-    .progress > b{ display:block; height:100%; width:0%;
-                   background:linear-gradient(90deg, var(--blue), var(--aqua));
-                   box-shadow:0 0 20px rgba(58,168,255,.6) inset }
-
-    /* Bottom nav (pixel) */
-    nav{
-      padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
-      background:linear-gradient(180deg, rgba(6,16,36,.52), rgba(6,16,36,.94));
-      border-top:1px solid var(--br); box-shadow: var(--glow);
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    }
-    .nav-btn{
-      border-radius:14px; border:1px solid var(--br);
-      background:
-        radial-gradient(120px 40px at 50% 0%, rgba(57,169,255,.32), transparent 60%),
-        linear-gradient(180deg, rgba(18,46,110,.7), rgba(10,28,74,.7));
-      padding:12px; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center;
-    }
-    .nav-btn.active{ outline:2px solid var(--blue); box-shadow:0 0 0 4px rgba(58,168,255,.14) }
-
-    header{ padding-top: calc(10px + env(safe-area-inset-top)); height: calc(60px + env(safe-area-inset-top)); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoLab System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body class="scene">
-  <!-- particle net -->
-  <canvas id="particles" style="position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.58;"></canvas>
-
-  <div class="app" id="app">
-    <header>
-      <div class="dot" aria-hidden="true"></div>
-      <div class="brand">
-        <div class="pix">NEOLAB [BLUE] v3</div>
-        <div class="sub">кибер-комплекс · OVERCLOCK</div>
-      </div>
-    </header>
-
-    <main id="view" tabindex="-1" aria-live="polite"></main>
-
-    <nav id="nav">
-      <button class="nav-btn" data-view="processor">⚙️ ПРОЦЕССОР</button>
-      <button class="nav-btn" data-view="mods">🧬 МОДИФИКАЦИИ</button>
-      <button class="nav-btn" data-view="lab">☢️ ЛАБОРАТОРИЯ</button>
-      <button class="nav-btn" data-view="shop">➕ ИМПЛАНТ-БУТИК</button>
-      <button class="nav-btn" data-view="format">♻️ ФОРМАТИРОВАНИЕ</button>
-      <button class="nav-btn" data-view="god">✨ БОГ</button>
-    </nav>
-  </div>
-
-  <script>
-    /* ===== particles for cyber vibe ===== */
-    const C = document.getElementById('particles'); const CTX = C.getContext('2d');
-    let W,H, P=[];
-    function resize(){ W = C.width = innerWidth; H = C.height = innerHeight;
-      const n = Math.max(40, Math.floor(W*H/16000));
-      P = Array.from({length:n}, ()=>({ x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.32, vy:(Math.random()-.5)*.32 }));
-    }
-    function loop(){
-      CTX.clearRect(0,0,W,H);
-      P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1; });
-      CTX.fillStyle='rgba(157,229,255,.8)';
-      for(const p of P){ CTX.beginPath(); CTX.arc(p.x,p.y,1.1,0,Math.PI*2); CTX.fill(); }
-      for(let i=0;i<P.length;i++){
-        for(let j=i+1;j<P.length;j++){
-          const a=P[i], b=P[j], d=Math.hypot(a.x-b.x, a.y-b.y);
-          if(d<120){
-            CTX.strokeStyle = `rgba(58,168,255,${(1-d/120)*.16})`;
-            CTX.lineWidth=.6; CTX.beginPath(); CTX.moveTo(a.x,a.y); CTX.lineTo(b.x,b.y); CTX.stroke();
-          }
-        }
-      }
-      requestAnimationFrame(loop);
-    }
-    resize(); addEventListener('resize', resize); loop();
-
-    /* ===== app state & router ===== */
-    const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>Array.from(e.querySelectorAll(s));
-    const blank={ cryo:0, components:0, blueprints:0, modsBuilt:0, level:1, inventory:[], modules:{calibrated:false,frequency:0,installed:[]}, log:[] };
-    let S = load();
-    function save(){ localStorage.setItem('neolab-blue', JSON.stringify(S)); }
-    function load(){ try{ return Object.assign({}, blank, JSON.parse(localStorage.getItem('neolab-blue')||'{}')); }catch(e){ return structuredClone(blank); } }
-
-    const routes = { processor, lab, mods, shop, format, god, welcome };
-    const view = $('#view');
-
-    function go(name){
-      const fn = routes[name] || routes['welcome'];
-      view.innerHTML = fn();
-      attach(name);
-      $$('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
-      save(); view.scrollTop=0;
-    }
-
-    /* ===== views (with ASCII headers) ===== */
-    function asciiBox(title){
-      const t = title.toUpperCase();
-      const bar = '-'.repeat(Math.min(28, t.length+2));
-      return `+${bar}+\n| ${t} |\n+${bar}+`;
-    }
-
-    function welcome(){
-      return `
-        <section class="panel">
-          <pre class="ascii">${asciiBox('WELCOME / START')}</pre>
-          <h2>Добро пожаловать в NeoLab</h2>
-          <p class="muted">Насыщенный нео-киберпанк интерфейс с пиксельной типографикой. Используйте нижние кнопки.</p>
-          <div class="grid-2" style="margin-top:12px">
-            <button class="btn" data-go="processor">🔎 ОТКРЫТЬ ПРОЦЕССОР</button>
-            <button class="btn btn--ghost" data-go="lab">🧪 В ЛАБОРАТОРИЮ</button>
-          </div>
-        </section>
-      `;
-    }
-
-    function processor(){
-      return `
-        <section class="panel">
-          <pre class="ascii">${asciiBox('CORE PROCESSOR')}</pre>
-          <h2>Процессор</h2>
-          <div class="grid-2" style="margin-top:10px">
-            <div class="kpi">Крио-Геном <strong>${S.cryo}</strong></div>
-            <div class="kpi">Компоненты <strong>${S.components}</strong></div>
-            <div class="kpi">Чертежи <strong>${S.blueprints}</strong></div>
-            <div class="kpi">Модификаций <strong>${S.modsBuilt}</strong></div>
-            <div class="kpi">Уровень <strong>${S.level}</strong></div>
-            <div class="kpi">Инвентарь <strong>${S.inventory.length}</strong></div>
-          </div>
-          <div class="grid-2" style="margin-top:14px">
-            <button class="btn" data-go="lab">🧪 ИЗВЛЕЧЬ КРИО-ГЕНОМ</button>
-            <button class="btn" data-go="mods">🧬 КАЛИБРОВАТЬ МОДУЛЬ</button>
-          </div>
-        </section>
-
-        <section class="panel">
-          <pre class="ascii">${asciiBox('LAST LOG')}</pre>
-          <div class="note">${(S.log.slice(-6).reverse().map(x=>'• '+x).join('<br>')) || 'Лента событий пуста.'}</div>
-        </section>
-      `;
-    }
-
-    function lab(){
-      return `
-        <section class="panel">
-          <pre class="ascii">${asciiBox('LAB / EXTRACT')}</pre>
-          <h2>Лаборатория</h2>
-          <p class="muted">Извлечение <b>Крио-Генома</b>, синтез компонентов и создание чертежей.</p>
-
-          <div class="field" style="margin-top:10px">
-            <label>Извлечение Крио-Генома</label>
-            <div class="progress"><b id="pbar"></b></div>
-          </div>
-
-          <div class="grid-2" style="margin-top:12px">
-            <button class="btn btn--good" id="extract">🚀 ЗАПУСК</button>
-            <button class="btn" id="extractComponents">⚒️ СИНТЕЗ КОМПОНЕНТОВ</button>
-          </div>
-
-          <div class="grid-2" style="margin-top:12px">
-            <button class="btn" id="makeBlueprint">📐 СОЗДАТЬ ЧЕРТЁЖ</button>
-            <button class="btn btn--ghost" data-go="tree">🌫️ ДРЕВО ИССЛЕДОВАНИЙ</button>
-          </div>
-        </section>
-      `;
-    }
-
-    function mods(){
-      return `
-        <section class="panel">
-          <pre class="ascii">${asciiBox('MODULE CALIB')}</pre>
-          <h2>Модификации</h2>
-          <div class="grid-2" style="margin-top:10px">
-            <button class="btn" id="calibrate">⚙️ КАЛИБРОВКА</button>
-            <button class="btn" id="freq">📶 НАСТРОЙКА ЧАСТОТЫ</button>
-          </div>
-          <div style="margin-top:12px">
-            <div class="kpi">Частота <strong>${S.modules.frequency||0} Гц</strong></div>
-          </div>
-          <div style="margin-top:12px">
-            <button class="btn" id="install">🧩 УСТАНОВИТЬ МОДУЛЬ</button>
-          </div>
-          <div style="margin-top:12px">
-            <button class="btn" id="buildMod">🛠️ ПОЛУЧИТЬ МОДИФИКАТОР</button>
-            <div class="note" style="margin-top:6px">Требуется: 1 чертёж + 3 компонента</div>
-          </div>
-        </section>
-      `;
-    }
-
-    function shop(){
-      const items = [
-        {id:'neuro-01', name:'НЕЙРО-МОД 01', desc:'Базовая стабилизация отклика', price:5},
-        {id:'stabilizer', name:'СТАБИЛИЗАТОР ПОЛЯ', desc:'Снижает шум на 12%', price:2},
-        {id:'sensor', name:'СЕНСОР СПЕКТРОВ', desc:'Открывает скрытые слои', price:4},
-        {id:'booster', name:'ПЛАЗМА-БУСТЕР', desc:'+1 к частоте модуля', price:3},
-      ];
-      window.__shop = items;
-
-      return `
-        <section class="panel">
-          <pre class="ascii">${asciiBox('IMPLANT BOUTIQUE')}</pre>
-          <h2>Имплант-Бутик</h2>
-          <p class="muted">Баланс: <b>${S.cryo}</b> Ⓚ</p>
-
-          <div style="margin-top:10px">
-            ${items.map(it => `
-              <div class="item" style="margin-top:8px">
-                <div style="width:40px;height:40px;border-radius:10px;border:1px solid var(--br);box-shadow:var(--glow);background:linear-gradient(135deg, rgba(58,168,255,.35), rgba(58,168,255,.08));"></div>
-                <div style="flex:1">
-                  <div style="font-family:var(--pix);font-size:10px;letter-spacing:.5px">${it.name} · <span class="price">${it.price} Ⓚ</span></div>
-                  <div class="meta">${it.desc}</div>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-glitch" data-text="≋ NEO-LAB SYSTEM ≋">≋ NEO-LAB SYSTEM ≋</div>
+            <div class="user-status">
+                <span id="user-level">Уровень 1</span>
+                <div class="resource-display">
+                    <span class="resource" id="cryo-count">0 ㉿</span>
+                    <span class="resource" id="components-count">0 ⚙</span>
+                    <span class="resource" id="synthesis-count">0 ✎</span>
                 </div>
-                <button class="btn" data-buy="${it.id}" style="width:auto;padding:10px 12px">КУПИТЬ</button>
-              </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="terminal-interface">
+                <div class="screen-container">
+                    <div class="scanline"></div>
+                    
+                    <!-- Главный экран -->
+                    <div id="main-screen" class="screen active">
+                        <h2 class="screen-title">≋ ГЛАВНЫЙ ИНТЕРФЕЙС ≋</h2>
+                        <div class="screen-content">
+                            <p>⊕ Процессор инициализирован</p>
+                            <p>∯ Лаборатория активирована</p>
+                            <p>∞ Модификации синхронизированы</p>
+                            <div class="action-grid">
+                                <button class="action-btn" data-action="collect-all">АВТО-СБОР</button>
+                                <button class="action-btn" data-action="boost">ИМПУЛЬСНЫЙ БУСТ</button>
+                                <button class="action-btn" data-action="analyze">СИСТЕМНЫЙ АНАЛИЗ</button>
+                                <button class="action-btn" data-action="upgrade">АПГРЕЙД МОДУЛЯ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран процессора -->
+                    <div id="processor-screen" class="screen">
+                        <h2 class="screen-title">⊕ ПРОЦЕССОР</h2>
+                        <div class="screen-content">
+                            <p><i>Центр управления и хранения ресурсов системы NeoLab.</i></p>
+                            <div class="stats-container">
+                                <div class="stat-row">
+                                    <span>㉿ Крио-Геном:</span>
+                                    <span id="processor-cryo">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>⚙ Компоненты:</span>
+                                    <span id="processor-components">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>✎ Очки синтеза:</span>
+                                    <span id="processor-synthesis">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>⚡ Уровень импульса:</span>
+                                    <span id="processor-impulse">0</span>
+                                </div>
+                            </div>
+                            <div class="cooldown-container">
+                                <h3>Время до следующего сбора:</h3>
+                                <div class="cooldown-item" id="cryo-cooldown">Крио-Геном: Готово</div>
+                                <div class="cooldown-item" id="components-cooldown">Компоненты: Готово</div>
+                                <div class="cooldown-item" id="synthesis-cooldown">Очки синтеза: Готово</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран модификаций -->
+                    <div id="modifications-screen" class="screen">
+                        <h2 class="screen-title">∞ МОДИФИКАЦИИ</h2>
+                        <div class="screen-content">
+                            <p>Усильте ваши возможности через систему модификаторов</p>
+                            <div id="mods-container" class="action-grid">
+                                <!-- Динамически генерируемые кнопки модификаций -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран лаборатории -->
+                    <div id="laboratory-screen" class="screen">
+                        <h2 class="screen-title">∯ ЛАБОРАТОРИЯ</h2>
+                        <div class="screen-content">
+                            <p>Проводите экстракцию Крио-Генома и исследование компонентов</p>
+                            <div class="action-grid">
+                                <button class="action-btn" id="collect-cryo-btn">ИЗВЛЕЧЬ КРИО-ГЕНОМ</button>
+                                <button class="action-btn" id="research-server-btn">ИССЛЕДОВАТЕЛЬСКИЙ СЕРВЕР</button>
+                                <button class="action-btn" id="collect-components-btn">РАСШИРИТЕЛЬ КОМПОНЕНТОВ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран имплант-бутика -->
+                    <div id="boutique-screen" class="screen">
+                        <h2 class="screen-title">㊉ ИМПЛАНТ-БУТИК</h2>
+                        <div class="screen-content">
+                            <p>Приобретайте улучшения за Крио-Геном</p>
+                            <div class="shop-items">
+                                <div class="shop-item">
+                                    <h3>Импульс Уровень 1</h3>
+                                    <p>Сокращает время сбора ресурсов</p>
+                                    <p class="price">1000 ㉿</p>
+                                    <button class="buy-btn" data-item="impulse_1">КУПИТЬ</button>
+                                </div>
+                                <div class="shop-item">
+                                    <h3>Улучшенный сбор</h3>
+                                    <p>Увеличивает количество получаемых ресурсов</p>
+                                    <p class="price">500 ㉿</p>
+                                    <button class="buy-btn" data-item="better_collection">КУПИТЬ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран ИИ-ассистента -->
+                    <div id="ai-screen" class="screen">
+                        <h2 class="screen-title">ОБРАЩЕНИЕ К БОГУ</h2>
+                        <div class="screen-content">
+                            <div class="ai-chat" id="ai-chat">
+                                <div class="message ai-message">
+                                    Здравствуйте, оператор. Я ваш ИИ-ассистент. Чем могу помочь?
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" id="ai-input" placeholder="Введите ваш запрос...">
+                                <button id="ai-send">➤</button>
+                            </div>
+                            <div class="ai-controls">
+                                <button class="action-btn" id="activate-ai">АКТИВИРОВАТЬ ИИ</button>
+                                <button class="action-btn" id="deactivate-ai">ДЕАКТИВИРОВАТЬ ИИ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран калибровки -->
+                    <div id="calibration-screen" class="screen">
+                        <h2 class="screen-title">КАЛИБРОВКА МОДУЛЯ</h2>
+                        <div class="screen-content">
+                            <p>Откройте ячейки для получения награды. У вас есть 5 попыток.</p>
+                            <div class="calibration-grid" id="calibration-grid">
+                                <!-- Динамически генерируемая сетка 3x3 -->
+                            </div>
+                            <div class="calibration-info">
+                                <p>Осталось попыток: <span id="attempts-left">5</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран частотного анализатора -->
+                    <div id="frequency-screen" class="screen">
+                        <h2 class="screen-title">ЧАСТОТНЫЙ АНАЛИЗАТОР</h2>
+                        <div class="screen-content">
+                            <p>Запомните числа и введите их в том же порядке:</p>
+                            <div id="frequency-numbers" class="frequency-display">
+                                <!-- Числа будут отображены здесь -->
+                            </div>
+                            <div class="frequency-input">
+                                <input type="text" id="frequency-input" placeholder="Введите числа через пробел">
+                                <button id="frequency-submit">ПОДТВЕРДИТЬ</button>
+                            </div>
+                            <div class="timer">
+                                <p>Осталось времени: <span id="frequency-timer">8</span> секунд</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <button class="nav-btn" data-screen="processor">Процессор⊕</button>
+                <button class="nav-btn" data-screen="modifications">Модификации∞</button>
+                <button class="nav-btn" data-screen="laboratory">Лаборатория∯</button>
+                <button class="nav-btn" data-screen="boutique">Имплант-Бутик㊉</button>
+                <button class="nav-btn" id="format-btn">Форматирование↻</button>
+                <button class="nav-btn" data-screen="ai">Обратиться к Богу</button>
+            </nav>
+        </main>
+
+        <div class="notification-toast" id="notification"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
