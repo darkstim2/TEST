@@ -103,12 +103,37 @@ class NeoLabApp {
         this.setupEventListeners();
         this.renderMainScreen();
         this.startTimers();
+        this.setupPixelDesign();
         
         // Инициализация Telegram WebApp
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
         }
+    }
+
+    setupPixelDesign() {
+        // Добавляем эффекты пикселизации для элементов
+        document.querySelectorAll('.pixel-border').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                element.style.boxShadow = '0 0 5px #00ccff';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.boxShadow = 'none';
+            });
+        });
+        
+        // Добавляем пиксельный эффект для уведомлений
+        const originalShowNotification = this.showNotification;
+        this.showNotification = (message, type = 'info') => {
+            // Добавляем пиксельный эффект к уведомлению
+            const notification = document.getElementById('notification');
+            notification.classList.add('pixel-border');
+            
+            // Вызываем оригинальную функцию
+            originalShowNotification.call(this, message, type);
+        };
     }
 
     loadUserData() {
@@ -199,12 +224,15 @@ class NeoLabApp {
         });
         
         // Обработчики для главного экрана
-        document.querySelectorAll('#main-screen .action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const action = e.target.dataset.action;
-                this.handleMainAction(action);
+        const mainScreen = document.getElementById('main-screen');
+        if (mainScreen) {
+            mainScreen.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    this.handleMainAction(action);
+                });
             });
-        });
+        }
     }
 
     changeScreen(screenName) {
@@ -213,7 +241,10 @@ class NeoLabApp {
         });
 
         this.currentScreen = screenName;
-        document.getElementById(`${screenName}-screen`).classList.add('active');
+        const screenElement = document.getElementById(`${screenName}-screen`);
+        if (screenElement) {
+            screenElement.classList.add('active');
+        }
         
         // Специфическая инициализация для каждого экрана
         switch(screenName) {
@@ -397,6 +428,8 @@ class NeoLabApp {
 
     renderModificationsScreen() {
         const modsContainer = document.getElementById('mods-container');
+        if (!modsContainer) return;
+        
         modsContainer.innerHTML = '';
         
         const mods = [
@@ -408,7 +441,7 @@ class NeoLabApp {
         
         mods.forEach(mod => {
             const button = document.createElement('button');
-            button.className = 'action-btn';
+            button.className = 'action-btn pixel-border';
             button.textContent = mod.name;
             button.addEventListener('click', mod.action);
             modsContainer.appendChild(button);
@@ -486,13 +519,15 @@ class NeoLabApp {
 
     renderCalibrationGrid() {
         const gridContainer = document.getElementById('calibration-grid');
+        if (!gridContainer) return;
+        
         gridContainer.innerHTML = '';
         document.getElementById('attempts-left').textContent = this.calibrationAttempts;
         
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 const cell = document.createElement('div');
-                cell.className = 'calibration-cell';
+                cell.className = 'calibration-cell pixel-border';
                 cell.dataset.i = i;
                 cell.dataset.j = j;
                 cell.textContent = '⚫';
@@ -569,6 +604,8 @@ class NeoLabApp {
 
     renderFrequencyNumbers() {
         const numbersDisplay = document.getElementById('frequency-numbers');
+        if (!numbersDisplay) return;
+        
         numbersDisplay.textContent = this.frequencyNumbers.join(' ');
         
         const timerElement = document.getElementById('frequency-timer');
@@ -580,7 +617,7 @@ class NeoLabApp {
             timeLeft--;
             timerElement.textContent = timeLeft;
             
-            if (timeLeft <= 0) {
+                        if (timeLeft <= 0) {
                 clearInterval(this.frequencyTimer);
                 this.showNotification('⏰ Время вышло! Вы не успели ввести числа.', 'error');
                 setTimeout(() => {
