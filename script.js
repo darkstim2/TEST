@@ -867,3 +867,4 @@ class NeoLabApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.neolabApp = new NeoLabApp();
 });
+
