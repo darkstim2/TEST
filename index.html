@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoLab System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Пиксельный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Заголовок в стиле A-34 -->
+        <div class="subject-header pixel-border">
+            <div class="subject-id">SUBJECT A-34</div>
+            <div class="subject-info">
+                <div class="info-row">
+                    <span class="label">MATE</span>
+                    <span class="value">TORRA. TAHA</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">IMCEPT DATE</span>
+                    <span class="value">03/05/2008</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">FUNCTION</span>
+                    <span class="value">DESIGNER</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">MENTAL STATE</span>
+                    <span class="value unstable">UNSTABLE</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">THREAT ASSESSMENT</span>
+                    <span class="value threat">★★★★</span>
+                </div>
+            </div>
+        </div>
+
+        <header class="app-header">
+            <div class="header-glitch" data-text="≋ NEO-LAB SYSTEM ≋">≋ NEO-LAB SYSTEM ≋</div>
+            <div class="user-status">
+                <span id="user-level">Уровень 1</span>
+                <div class="resource-display">
+                    <span class="resource" id="cryo-count">0 ㉿</span>
+                    <span class="resource" id="components-count">0 ⚙</span>
+                    <span class="resource" id="synthesis-count">0 ✎</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="terminal-interface pixel-border">
+                <div class="screen-container">
+                    <div class="scanline"></div>
+                    
+                    <!-- Главный экран -->
+                    <div id="main-screen" class="screen active">
+                        <h2 class="screen-title">≋ ГЛАВНЫЙ ИНТЕРФЕЙС ≋</h2>
+                        <div class="screen-content">
+                            <p>⊕ Процессор инициализирован</p>
+                            <p>∯ Лаборатория активирована</p>
+                            <p>∞ Модификации синхронизированы</p>
+                            <div class="action-grid">
+                                <button class="action-btn pixel-border" data-action="collect-all">АВТО-СБОР</button>
+                                <button class="action-btn pixel-border" data-action="boost">ИМПУЛЬСНЫЙ БУСТ</button>
+                                <button class="action-btn pixel-border" data-action="analyze">СИСТЕМНЫЙ АНАЛИЗ</button>
+                                <button class="action-btn pixel-border" data-action="upgrade">АПГРЕЙД МОДУЛЯ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран процессора -->
+                    <div id="processor-screen" class="screen">
+                        <h2 class="screen-title">⊕ ПРОЦЕССОР</h2>
+                        <div class="screen-content">
+                            <p><i>Центр управления и хранения ресурсов системы NeoLab.</i></p>
+                            <div class="stats-container">
+                                <div class="stat-row">
+                                    <span>㉿ Крио-Геном:</span>
+                                    <span id="processor-cryo">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>⚙ Компоненты:</span>
+                                    <span id="processor-components">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>✎ Очки синтеза:</span>
+                                    <span id="processor-synthesis">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>⚡ Уровень импульса:</span>
+                                    <span id="processor-impulse">0</span>
+                                </div>
+                            </div>
+                            <div class="cooldown-container">
+                                <h3>Время до следующего сбора:</h3>
+                                <div class="cooldown-item" id="cryo-cooldown">Крио-Геном: Готово</div>
+                                <div class="cooldown-item" id="components-cooldown">Компоненты: Готово</div>
+                                <div class="cooldown-item" id="synthesis-cooldown">Очки синтеза: Готово</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран модификаций -->
+                    <div id="modifications-screen" class="screen">
+                        <h2 class="screen-title">∞ МОДИФИКАЦИИ</h2>
+                        <div class="screen-content">
+                            <p>Усильте ваши возможности через систему модификаторов</p>
+                            <div id="mods-container" class="action-grid">
+                                <!-- Динамически генерируемые кнопки модификаций -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран лаборатории -->
+                    <div id="laboratory-screen" class="screen">
+                        <h2 class="screen-title">∯ ЛАБОРАТОРИЯ</h2>
+                        <div class="screen-content">
+                            <p>Проводите экстракцию Крио-Генома и исследование компонентов</p>
+                            <div class="action-grid">
+                                <button class="action-btn pixel-border" id="collect-cryo-btn">ИЗВЛЕЧЬ КРИО-ГЕНОМ</button>
+                                <button class="action-btn pixel-border" id="research-server-btn">ИССЛЕДОВАТЕЛЬСКИЙ СЕРВЕР</button>
+                                <button class="action-btn pixel-border" id="collect-components-btn">РАСШИРИТЕЛЬ КОМПОНЕНТОВ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран имплант-бутика -->
+                    <div id="boutique-screen" class="screen">
+                        <h2 class="screen-title">㊉ ИМПЛАНТ-БУТИК</h2>
+                        <div class="screen-content">
+                            <p>Приобретайте улучшения за Крио-Геном</p>
+                            <div class="shop-items">
+                                <div class="shop-item pixel-border">
+                                    <h3>Импульс Уровень 1</h3>
+                                    <p>Сокращает время сбора ресурсов</p>
+                                    <p class="price">1000 ㉿</p>
+                                    <button class="buy-btn pixel-border" data-item="impulse_1">КУПИТЬ</button>
+                                </div>
+                                <div class="shop-item pixel-border">
+                                    <h3>Улучшенный сбор</h3>
+                                    <p>Увеличивает количество получаемых ресурсов</p>
+                                    <p class="price">500 ㉿</p>
+                                    <button class="buy-btn pixel-border" data-item="better_collection">КУПИТЬ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран ИИ-ассистента -->
+                    <div id="ai-screen" class="screen">
+                        <h2 class="screen-title">ОБРАЩЕНИЕ К БОГУ</h2>
+                        <div class="screen-content">
+                            <div class="ai-chat pixel-border" id="ai-chat">
+                                <div class="message ai-message">
+                                    Здравствуйте, оператор. Я ваш ИИ-ассистент. Чем могу помочь?
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" id="ai-input" placeholder="Введите ваш запрос..." class="pixel-border">
+                                <button id="ai-send" class="pixel-border">➤</button>
+                            </div>
+                            <div class="ai-controls">
+                                <button class="action-btn pixel-border" id="activate-ai">АКТИВИРОВАТЬ ИИ</button>
+                                <button class="action-btn pixel-border" id="deactivate-ai">ДЕАКТИВИРОВАТЬ ИИ</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран калибровки -->
+                    <div id="calibration-screen" class="screen">
+                        <h2 class="screen-title">КАЛИБРОВКА МОДУЛЯ</h2>
+                        <div class="screen-content">
+                            <p>Откройте ячейки для получения награды. У вас есть 5 попыток.</p>
+                            <div class="calibration-grid" id="calibration-grid">
+                                <!-- Динамически генерируемая сетка 3x3 -->
+                            </div>
+                            <div class="calibration-info">
+                                <p>Осталось попыток: <span id="attempts-left">5</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Экран частотного анализатора -->
+                    <div id="frequency-screen" class="screen">
+                        <h2 class="screen-title">ЧАСТОТНЫЙ АНАЛИЗАТОР</h2>
+                        <div class="screen-content">
+                            <p>Запомните числа и введите их в том же порядке:</p>
+                            <div id="frequency-numbers" class="frequency-display pixel-border">
+                                <!-- Числа будут отображены здесь -->
+                            </div>
+                            <div class="frequency-input">
+                                <input type="text" id="frequency-input" placeholder="Введите числа через пробел" class="pixel-border">
+                                <button id="frequency-submit" class="pixel-border">ПОДТВЕРДИТЬ</button>
+                            </div>
+                            <div class="timer">
+                                <p>Осталось времени: <span id="frequency-timer">8</span> секунд</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <button class="nav-btn pixel-border" data-screen="processor">Процессор⊕</button>
+                <button class="nav-btn pixel-border" data-screen="modifications">Модификации∞</button>
+                <button class="nav-btn pixel-border" data-screen="laboratory">Лаборатория∯</button>
+                <button class="nav-btn pixel-border" data-screen="boutique">Имплант-Бутик㊉</button>
+                <button class="nav-btn pixel-border" id="format-btn">Форматирование↻</button>
+                <button class="nav-btn pixel-border" data-screen="ai">Обратиться к Богу</button>
+            </nav>
+        </main>
+
+        <div class="notification-toast pixel-border" id="notification"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
