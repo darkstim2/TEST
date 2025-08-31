@@ -1,16 +1,32 @@
-/* Добавляем пиксельный шрифт для всего интерфейса */
+/* Пиксельный шрифт для всего интерфейса */
 * {
     font-family: 'Press Start 2P', cursive;
+    image-rendering: pixelated;
 }
 
 /* Уменьшаем размер шрифта для лучшего отображения пикселей */
 body {
     font-size: 10px;
+    background-color: #0a0a14;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 166, 255, 0.11) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 212, 0.09) 0%, transparent 20%);
 }
 
+.app-container {
+    max-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* Стили для заголовка в стиле A-34 */
 .subject-header {
     background-color: #000;
-    border: 2px solid #00a2ff;
     padding: 10px;
     margin-bottom: 15px;
     position: relative;
@@ -54,69 +70,408 @@ body {
     color: #ffcc00;
 }
 
-/* Пиксельные границы для кнопок */
-.pixel-border {
-    border: 2px solid #00a2ff;
-    border-image: 
-        linear-gradient(
-            45deg,
-            #00a2ff, #00ccff, #00a2ff
-        ) 1;
-    image-rendering: pixelated;
+.app-header {
+    padding: 15px;
+    border-bottom: 1px solid #00a2ff;
+    margin-bottom: 15px;
     position: relative;
+    overflow: hidden;
 }
 
-.pixel-border::before {
-    content: "";
+.header-glitch {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #00ccff;
+    text-align: center;
+    position: relative;
+    letter-spacing: 2px;
+}
+
+.header-glitch::before,
+.header-glitch::after {
+    content: attr(data-text);
     position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border: 1px solid #00ccff;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.header-glitch::before {
+    animation: glitch-1 5s infinite linear alternate-reverse;
+    color: #ff00d0;
     z-index: -1;
 }
 
-/* Пиксельные эффекты для уведомлений */
+.header-glitch::after {
+    animation: glitch-2 3s infinite linear alternate-reverse;
+    color: #0084ff;
+    z-index: -2;
+}
+
+.user-status {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.resource-display {
+    display: flex;
+    gap: 15px;
+}
+
+.resource {
+    padding: 3px 8px;
+    background: rgba(0, 60, 120, 0.3);
+    border-radius: 3px;
+    border: 1px solid #0084ff;
+}
+
+.terminal-interface {
+    flex-grow: 1;
+    border-radius: 8px;
+    background-color: #000000;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.screen-container {
+    position: relative;
+    height: 100%;
+    min-height: 400px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, 
+        transparent, 
+        #0084ff, 
+        transparent);
+    animation: scanline 3s linear infinite;
+    z-index: 10;
+    opacity: 0.7;
+}
+
+.screen {
+    display: none;
+    height: 100%;
+}
+
+.screen.active {
+    display: block;
+}
+
+.screen-title {
+    color: #00ccff;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #00a2ff;
+    padding-bottom: 5px;
+}
+
+.screen-content {
+    margin-bottom: 15px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.action-btn, .nav-btn {
+    background: #001935;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    position: relative;
+    font-size: 8px;
+}
+
+.action-btn:hover, .nav-btn:hover {
+    background: #003b75;
+}
+
+.action-btn:active, .nav-btn:active {
+    transform: translateY(2px);
+}
+
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cooldown-timer {
+    font-size: 0.8rem;
+    color: #ffcc00;
+    margin-top: 5px;
+}
+
+.main-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
 .notification-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: #000000;
+    color: #ffffff;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 8px;
+}
+
+.notification-toast.show {
+    opacity: 1;
+}
+
+.notification-toast.success {
+    color: #00ff9d;
+}
+
+.notification-toast.error {
+    color: #ff006a;
+}
+
+.notification-toast.warning {
+    color: #ffcc00;
+}
+
+/* Стили для экрана процессора */
+.stats-container {
+    margin: 15px 0;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 162, 255, 0.3);
+}
+
+.cooldown-container {
+    margin-top: 20px;
+}
+
+.cooldown-item {
+    padding: 5px 0;
+    font-size: 0.9rem;
+}
+
+/* Стили для магазина */
+.shop-items {
+    display: grid;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.shop-item {
+    border-radius: 0;
+    padding: 15px;
+    background: rgba(0, 30, 60, 0.3);
+}
+
+.shop-item h3 {
+    color: #00ccff;
+    margin-bottom: 8px;
+    font-size: 10px;
+}
+
+.price {
+    color: #ff00d0;
+    font-weight: bold;
+    margin: 10px 0;
+    font-size: 10px;
+}
+
+.buy-btn {
+    background: #001935;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 0;
+    cursor: pointer;
+    width: 100%;
+    font-size: 8px;
+}
+
+.buy-btn:hover {
+    background: #003b75;
+}
+
+/* Стили для ИИ-чата */
+.ai-chat {
+    height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: rgba(0, 30, 60, 0.2);
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 0;
+    max-width: 80%;
+    font-size: 8px;
+}
+
+.user-message {
+    background: rgba(0, 100, 200, 0.2);
+    margin-left: auto;
+    text-align: right;
+}
+
+.ai-message {
+    background: rgba(0, 200, 100, 0.2);
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.chat-input input {
+    flex-grow: 1;
+    background: #000000;
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 0;
+    font-size: 8px;
+}
+
+.chat-input button {
+    background: #001935;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 8px;
+}
+
+.ai-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Стили для калибровки */
+.calibration-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin: 15px 0;
+}
+
+.calibration-cell {
+    aspect-ratio: 1;
+    background: #001935;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.calibration-cell.revealed {
+    background: #003b75;
+}
+
+.calibration-cell.cryo-reward {
+    background: rgba(0, 255, 157, 0.2);
+}
+
+.calibration-cell.synthesis-reward {
+    background: rgba(0, 204, 255, 0.2);
+}
+
+.calibration-info {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 10px;
+}
+
+/* Стили для частотного анализатора */
+.frequency-display {
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 30, 60, 0.3);
+    margin: 15px 0;
+    letter-spacing: 5px;
+}
+
+.frequency-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.frequency-input input {
+    flex-grow: 1;
+    background: #000000;
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 0;
+    font-size: 8px;
+}
+
+.frequency-input button {
+    background: #001935;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 8px;
+}
+
+.timer {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #ff00d0;
+}
+
+/* Пиксельные границы */
+.pixel-border {
     border: 2px solid;
     border-image: 
         linear-gradient(
             45deg,
             #00a2ff, #00ccff, #00a2ff
         ) 1;
-    image-rendering: pixelated;
-    font-size: 8px;
+    position: relative;
 }
 
-/* Пиксельные эффекты для экранов */
-.screen {
-    border: 2px solid #00a2ff;
-    image-rendering: pixelated;
+.pixel-border::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid #00ccff;
+    z-index: -1;
 }
 
-/* Адаптируем размеры текста под пиксельный шрифт */
-.screen-title {
-    font-size: 10px;
-}
-
-.screen-content p {
-    font-size: 8px;
-}
-
-.action-btn, .nav-btn {
-    font-size: 8px;
-    padding: 8px;
-}
-
-/* Пиксельная анимация для сканирующей линии */
-.scanline {
-    height: 2px;
-    background: #00ccff;
-    animation: scanline 3s linear infinite;
-    image-rendering: pixelated;
-}
-
+/* Анимации */
 @keyframes scanline {
     0% {
         top: 0;
@@ -131,24 +486,79 @@ body {
     }
 }
 
-/* Пиксельные эффекты для сетки калибровки */
-.calibration-cell {
-    image-rendering: pixelated;
-    font-size: 16px;
+@keyframes glitch-1 {
+    0% {
+        transform: translateX(0);
+    }
+    10% {
+        transform: translateX(-2px);
+    }
+    20% {
+        transform: translateX(2px);
+    }
+    30% {
+        transform: translateX(-2px);
+    }
+    40% {
+        transform: translateX(2px);
+    }
+    50% {
+        transform: translateX(-2px);
+    }
+    60% {
+        transform: translateX(2px);
+    }
+    70% {
+        transform: translateX(-2px);
+    }
+    80% {
+        transform: translateX(2px);
+    }
+    90% {
+        transform: translateX(-2px);
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
-/* Пиксельные эффекты для чата ИИ */
-.ai-chat {
-    border: 2px solid #00a2ff;
-    image-rendering: pixelated;
+@keyframes glitch-2 {
+    0% {
+        transform: translateX(0);
+    }
+    10% {
+        transform: translateX(3px);
+    }
+    20% {
+        transform: translateX(-3px);
+    }
+    30% {
+        transform: translateX(3px);
+    }
+    40% {
+        transform: translateX(-3px);
+    }
+    50% {
+        transform: translateX(3px);
+    }
+    60% {
+        transform: translateX(-3px);
+    }
+    70% {
+        transform: translateX(3px);
+    }
+    80% {
+        transform: translateX(-3px);
+    }
+    90% {
+        transform: translateX(3px);
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
-.message {
-    font-size: 8px;
-    border: 1px solid #00a2ff;
-}
-
-/* Адаптация под мобильные устройства */
+/* Адаптивность */
 @media (max-width: 480px) {
     body {
         font-size: 8px;
@@ -169,5 +579,22 @@ body {
     .action-btn, .nav-btn {
         font-size: 7px;
         padding: 6px;
+    }
+    
+    .main-nav {
+        grid-template-columns: 1fr;
+    }
+    
+    .resource-display {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .ai-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr;
     }
 }
